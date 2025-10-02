@@ -41,8 +41,8 @@ class ArtemisBase(DriveBase):
         wait: bool = True,
     ):
         """Turns the robot to face in the direction `heading`."""
-        heading = self.angle()
-        turn = (heading - heading) % 360
+        current_heading = self.angle()
+        turn = (heading - current_heading) % 360
         if turn > 180:
             turn = turn - 360
         self.turn(turn, then, wait)

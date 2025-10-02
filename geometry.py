@@ -1,6 +1,6 @@
 """Geometry utilities for robotics."""
 
-from umath import atan2, sqrt, pi
+from umath import atan2, degrees sqrt
 
 def compute_trajectory(
     x0: float,
@@ -22,5 +22,5 @@ def compute_trajectory(
     a = x1 - x0
     b = y1 - y0
     distance = sqrt(a**2 + b**2)
-    heading = umath.degrees(atan2(a, b))
+    heading = degrees(atan2(a, b))
     return heading, distance
