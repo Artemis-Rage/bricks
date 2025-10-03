@@ -1,6 +1,6 @@
 """Geometry utilities for robotics."""
 
-from umath import atan2, degrees sqrt
+from umath import atan2, degrees, sqrt
 
 def compute_trajectory(
     x0: float,
