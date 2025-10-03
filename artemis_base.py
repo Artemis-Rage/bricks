@@ -11,6 +11,11 @@ hub = PrimeHub()
 hub.imu.reset_heading(0)
 
 
+class Gear:
+    FWD = 1
+    REV = -1
+
+
 class ArtemisBase(DriveBase):
     """ArtemisBase a version of DriveBase that tracks its position on the field.
     
@@ -53,8 +58,12 @@ class ArtemisBase(DriveBase):
         y: float,
         then: Stop = Stop.HOLD,
         wait: bool = True,
+        gear: Gear = Gear.FWD,
     ):
         """Drives from the current location to (x, y)."""
+        if gear == Gear.REV:
+            # TODO: Someone implement reverse gear!
+            raise NotImplementedError("Reverse gear not implemented yet.")
         heading, distance = geometry.compute_trajectory(self.x, self.y, x, y)
         self.turn_to(heading)
         self.straight(distance, then=then, wait=wait)
