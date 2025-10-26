@@ -1,14 +1,10 @@
 """ArtemisBase: A DriveBase that tracks its position on the field."""
 
-from pybricks.hubs import PrimeHub
 from pybricks.parameters import Stop
+from pybricks.pupdevices import Motor
 from pybricks.robotics import DriveBase
 
 import geometry
-
-hub = PrimeHub()
-
-hub.imu.reset_heading(0)
 
 
 class Gear:
@@ -25,10 +21,21 @@ class ArtemisBase(DriveBase):
 
     def __init__(
         self,
+        left_motor: Motor,
+        right_motor: Motor,
+        wheel_diameter: float,
+        axle_track: float,
         *args,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            left_motor,
+            right_motor,
+            wheel_diameter,
+            axle_track,
+            *args,
+            **kwargs,
+        )
         self.reset_position()
 
     def reset_position(
@@ -61,10 +68,10 @@ class ArtemisBase(DriveBase):
         gear: Gear = Gear.FWD,
     ):
         """Drives from the current location to (x, y)."""
-        if gear == Gear.REV:
-            # TODO: Someone implement reverse gear!
-            raise NotImplementedError("Reverse gear not implemented yet.")
         heading, distance = geometry.compute_trajectory(self.x, self.y, x, y)
+        if gear == Gear.REV:
+            heading += 180
+            distance = -distance
         self.turn_to(heading)
         self.straight(distance, then=then, wait=wait)
         self.reset_position(x, y)
