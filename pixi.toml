@@ -1,0 +1,33 @@
+[workspace]
+name = "bricks"
+version = "0.1.0"
+description = "PyBricks project for LEGO robotics"
+channels = ["conda-forge", "pyviz"]
+platforms = ["osx-64", "osx-arm64", "linux-64", "win-64"]
+
+[dependencies]
+python = ">=3.10,<3.12"
+jupyter = "*"
+notebook = "*"
+ipykernel = "*"
+numpy = "*"
+matplotlib = "*"
+ruff = "*"
+pytest = "*"
+pytest-asyncio = "*"
+pip = "*"
+
+[pypi-dependencies]
+pybricksdev = "*"
+pybricks = "*"
+
+[tasks]
+test = "pytest"
+format = "ruff format ."
+lint = "ruff check ."
+notebook = "jupyter notebook"
+install-dev = "pip install -e ."
+pbr = "pybricksdev run ble"
+
+[environments]
+default = {solve-group = "default"}

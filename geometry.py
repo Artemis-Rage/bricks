@@ -2,6 +2,7 @@
 
 from umath import atan2, degrees, sqrt
 
+
 def compute_trajectory(
     x0: float,
     y0: float,
