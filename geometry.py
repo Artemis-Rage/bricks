@@ -34,6 +34,6 @@ def compute_new_position(
     distance: float,
 ) -> tuple[float, float]:
     """Given a current position, heading, and distance, compute the new position."""
-    new_x = x0 + distance * cos(radians(heading))
-    new_y = y0 + distance * sin(radians(heading))
+    new_x = x0 + distance * sin(radians(heading))
+    new_y = y0 + distance * cos(radians(heading))
     return new_x, new_y

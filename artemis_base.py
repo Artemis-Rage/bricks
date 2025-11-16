@@ -180,6 +180,8 @@ class ArtemisBase(DriveBase):
             distance = -distance
         self.turn_to(heading)
         self.straight(distance, then=then, wait=wait)
+        # Assume we've arrived at the destination.
+        self.reset_position(x, y)
 
     @classmethod
     def default(cls) -> tuple[PrimeHub, "ArtemisBase"]:

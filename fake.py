@@ -136,7 +136,7 @@ class Base:
             for key in headers:
                 value = entry[key]
                 if key == "params":
-                    value = ", ".join(f"{k}={v!r}" for k, v in value.items())
+                    value = ", ".join(f"{k}={v}" for k, v in value.items())
                 row.append(str(value))
             rows.append(row)
         return headers, rows

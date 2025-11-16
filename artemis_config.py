@@ -10,7 +10,7 @@ class ToleranceConfig:
         self.position = position
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(speed={self.speed!r}, position={self.position!r})"
+        return f"ToleranceConfig(speed={self.speed}, position={self.position})"
 
 
 class ControlConfig:
@@ -30,11 +30,11 @@ class ControlConfig:
 
     def __repr__(self):
         return (
-            f"{self.__class__.__name__}("
-            f"kp={self.kp!r}, ki={self.ki!r}, kd={self.kd!r}, "
-            f"heading_tolerance={self.heading_tolerance!r}, "
-            f"distance_tolerance={self.distance_tolerance!r}"
-            f")"
+            "ControlConfig("
+            f"kp={self.kp}, ki={self.ki}, kd={self.kd}, "
+            f"heading_tolerance={self.heading_tolerance}, "
+            f"distance_tolerance={self.distance_tolerance}"
+            ")"
         )
 
 
@@ -53,12 +53,12 @@ class MotionConfig:
 
     def __repr__(self):
         return (
-            f"{self.__class__.__name__}("
-            f"straight_speed={self.straight_speed!r}, "
-            f"straight_acceleration={self.straight_acceleration!r}, "
-            f"turn_rate={self.turn_rate!r}, "
-            f"turn_acceleration={self.turn_acceleration!r}"
-            f")"
+            "MotionConfig("
+            f"straight_speed={self.straight_speed}, "
+            f"straight_acceleration={self.straight_acceleration}, "
+            f"turn_rate={self.turn_rate}, "
+            f"turn_acceleration={self.turn_acceleration}"
+            ")"
         )
 
 class GeometryConfig:
@@ -72,10 +72,10 @@ class GeometryConfig:
 
     def __repr__(self):
         return (
-            f"{self.__class__.__name__}("
-            f"wheel_diameter={self.wheel_diameter!r}, "
-            f"axle_track={self.axle_track!r}"
-            f")"
+            "GeometryConfig("
+            f"wheel_diameter={self.wheel_diameter}, "
+            f"axle_track={self.axle_track}"
+            ")"
         )
 
 class ToleranceConfig:
@@ -89,9 +89,9 @@ class ToleranceConfig:
 
     def __repr__(self):
         return (
-            f"{self.__class__.__name__}("
-            f"speed={self.speed!r}, position={self.position!r}"
-            f")"
+            "ToleranceConfig("
+            f"speed={self.speed}, position={self.position}"
+            ")"
         )
 
 
@@ -118,8 +118,8 @@ class ArtemisConfig:
             motion_config=MotionConfig(
                 straight_speed=350,
                 straight_acceleration=800,
-                turn_rate=150,
-                turn_acceleration=500,
+                turn_rate=100,
+                turn_acceleration=250,
             ),
             straight_control_config=ControlConfig(
                 kp=18_500,
@@ -131,30 +131,30 @@ class ArtemisConfig:
                 ),
                 distance_tolerance=ToleranceConfig(
                     speed=27,
-                    position=2,
+                    position=5,
                 ),
             ),
             turn_control_config=ControlConfig(
-                kp=11_000,
-                ki=17_000,
-                kd=2_100,
+                kp=7550,
+                ki=7800,
+                kd=760,
                 heading_tolerance=ToleranceConfig(
                     speed=38,
                     position=2,
                 ),
                 distance_tolerance=ToleranceConfig(
                     speed=27,
-                    position=2,
+                    position=5,
                 ),
             ),
         )
 
     def __repr__(self):
         return (
-            f"{self.__class__.__name__}("
-            f"geometry_config={self.geometry_config!r}, "
-            f"motion_config={self.motion_config!r}, "
-            f"straight_control_config={self.straight_control_config!r}, "
-            f"turn_control_config={self.turn_control_config!r}"
-            f")"
+            "ArtemisConfig("
+            f"geometry_config={self.geometry_config}, "
+            f"motion_config={self.motion_config}, "
+            f"straight_control_config={self.straight_control_config}, "
+            f"turn_control_config={self.turn_control_config}"
+            ")"
         )
