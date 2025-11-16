@@ -1,6 +1,6 @@
 """Geometry utilities for robotics."""
 
-from umath import atan2, degrees, sqrt
+from umath import atan2, cos, degrees, radians, sin, sqrt
 
 
 def compute_trajectory(
@@ -25,3 +25,15 @@ def compute_trajectory(
     distance = sqrt(a**2 + b**2)
     heading = degrees(atan2(a, b))
     return heading, distance
+
+
+def compute_new_position(
+    x0: float,
+    y0: float,
+    heading: float,
+    distance: float,
+) -> tuple[float, float]:
+    """Given a current position, heading, and distance, compute the new position."""
+    new_x = x0 + distance * cos(radians(heading))
+    new_y = y0 + distance * sin(radians(heading))
+    return new_x, new_y
