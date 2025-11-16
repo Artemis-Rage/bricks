@@ -169,11 +169,3 @@ if __name__ == "__main__":
     MapReveal().run(robot, attachment)
     Mineshaft().run(robot, attachment)
     Statue().run(robot, attachment)
-
-
-
-
-
-
-    def run(
-        self,
