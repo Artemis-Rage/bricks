@@ -12,6 +12,7 @@ from pybricks.pupdevices import ColorSensor, Motor
 from pybricks.robotics import DriveBase
 from pybricks.hubs import PrimeHub
 from pybricks.parameters import Axis, Direction, Port
+from pybricks.tools import multitask, run_task, wait
 
 import artemis_config
 import geometry
@@ -111,6 +112,20 @@ class ArtemisBase(DriveBase):
         self.x = x
         self.y = y
 
+    async def _straight_with_timeout(
+        self,
+        distance: float,
+        timeout: float,
+        then: Stop = Stop.HOLD,
+    ):        
+        await multitask(
+            super().straight(
+                distance=distance,
+                then=then,
+            ),
+            wait(timeout),
+            race=True,
+        )
 
     def straight(
         self,
@@ -119,6 +134,7 @@ class ArtemisBase(DriveBase):
         wait: bool = True,
         speed: float | None = None,
         acceleration: float | None = None,
+        timeout: float | None = None,
     ):
         """Drives straight for a given distance.
         
@@ -128,17 +144,28 @@ class ArtemisBase(DriveBase):
             wait: Whether to wait for the drive to complete.
             speed: Override the global speed setting.
             acceleration: Override the global acceleration setting.
+            timeout: If set, the maximum time to allow for the movement
+                before stopping it, in milliseconds.
         """
         self._configure_straight_control()
         if speed is not None:
             self.settings(straight_speed=speed)
         if acceleration is not None:
             self.settings(straight_acceleration=acceleration)
-        super().straight(
-            distance=distance,
-            then=then,
-            wait=wait,
-        )
+        if timeout is not None:
+            run_task(
+                self._straight_with_timeout(
+                    distance=distance,
+                    timeout=timeout,
+                    then=then,
+                )
+            )
+        else:
+            super().straight(
+                distance=distance,
+                then=then,
+                wait=wait,
+            )
         new_x, new_y = geometry.compute_new_position(
             self.x,
             self.y,
@@ -147,6 +174,21 @@ class ArtemisBase(DriveBase):
         )
         self.reset_position(new_x, new_y)
 
+    async def _turn_with_timeout(
+        self,
+        angle: float,
+        timeout: float,
+        then: Stop = Stop.HOLD,
+    ):
+        await multitask(
+            self.turn(
+                angle=angle,
+                then=then,
+            ),
+            wait(timeout),
+            race=True,
+        )
+
     def turn_to(
         self,
         heading: float,
@@ -154,6 +196,7 @@ class ArtemisBase(DriveBase):
         wait: bool = True,
         speed: float | None = None,
         acceleration: float | None = None,
+        timeout: float | None = None,
     ):
         """Turns the robot to face in the direction `heading`.
 
@@ -163,13 +206,28 @@ class ArtemisBase(DriveBase):
             wait: Whether to wait for the turn to complete.
             speed: Override the global turn speed setting.
             acceleration: Override the global turn acceleration setting.
+            timeout: If set, the maximum time to allow for the movement
+                before stopping it, in milliseconds.
         """
         self._configure_turn_control()
+        if speed is not None:
+            self.settings(turn_rate=speed)
+        if acceleration is not None:
+            self.settings(turn_acceleration=acceleration)
         current_heading = self.angle()
         turn = (heading - current_heading) % 360
         if turn > 180:
             turn = turn - 360
-        self.turn(turn, then, wait)
+        if timeout is not None:
+            run_task(
+                self._turn_with_timeout(
+                    angle=turn,
+                    timeout=timeout,
+                    then=then,
+                )
+            )
+        else:
+            self.turn(turn, then, wait)
 
     def drive_to(
         self,
