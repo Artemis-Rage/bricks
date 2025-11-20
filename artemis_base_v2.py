@@ -236,6 +236,7 @@ class ArtemisBase(DriveBase):
         then: Stop = Stop.HOLD,
         wait: bool = True,
         gear: Gear = Gear.FWD,
+        timeout: float | None = None,
     ):
         """Drives from the current location to (x, y)."""
         heading, distance = geometry.compute_trajectory(
@@ -244,8 +245,8 @@ class ArtemisBase(DriveBase):
         if gear == Gear.REV:
             heading += 180
             distance = -distance
-        self.turn_to(heading)
-        self.straight(distance, then=then, wait=wait)
+        self.turn_to(heading, timeout=timeout)
+        self.straight(distance, then=then, wait=wait, timeout=timeout)
         # Assume we've arrived at the destination rather than using the
         # computation from `straight`.
         self.reset_position(x, y)
