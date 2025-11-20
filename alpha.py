@@ -1,9 +1,11 @@
+from pybricks.parameters import Stop
 from pybricks.pupdevices import Motor
 
 
-_LEFT_ARM_DOWN_ANGLE = 99
+_LEFT_ARM_DOWN_ANGLE = 108
 _RIGHT_ARM_DOWN_ANGLE = -81
 _STALL_DUTY_LIMIT = 30
+_INIT_SPEED = 200
 
 class AttachmentAlpha:
     def __init__(
@@ -16,14 +18,14 @@ class AttachmentAlpha:
 
     def left_arm_init(self):
         self.left_motor.run_until_stalled(
-            -200,
+            -_INIT_SPEED,
             duty_limit=_STALL_DUTY_LIMIT,
         )
         self.left_motor.reset_angle(0)
 
     def right_arm_init(self):
         self.right_motor.run_until_stalled(
-            200,
+            _INIT_SPEED,
             duty_limit=_STALL_DUTY_LIMIT,
         )
         self.right_motor.reset_angle(0)
@@ -32,16 +34,32 @@ class AttachmentAlpha:
         self.left_arm_init()
         self.right_arm_init()
 
-    def left_arm_move(self, speed, position):
+    def left_arm_move(
+        self,
+        speed: float,
+        position: float,
+        then=Stop.HOLD,
+        wait=True,
+    ):
         angle = position / 100 * _LEFT_ARM_DOWN_ANGLE
         self.left_motor.run_target(
             speed=speed,
             target_angle=angle,
+            then=then,
+            wait=wait,
         )
 
-    def right_arm_move(self, speed, position):
+    def right_arm_move(
+        self,
+        speed: float,
+        position: float,
+        then=Stop.HOLD,
+        wait=True,
+    ):
         angle = position / 100 * _RIGHT_ARM_DOWN_ANGLE
         self.right_motor.run_target(
             speed=speed,
             target_angle=angle,
+            then=then,
+            wait=wait,
         )

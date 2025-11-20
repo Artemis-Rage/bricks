@@ -1,8 +1,13 @@
 from pybricks.hubs import PrimeHub
+from pybricks.tools import wait
 
 from alpha import AttachmentAlpha
-from artemis_base import ArtemisBase, Gear
-from map import WEST_START
+from artemis_base_v2 import ArtemisBase, Gear
+
+WEST_START = dict(
+    x=359,
+    y=137,
+)
 
 
 def init() -> tuple[PrimeHub, ArtemisBase, AttachmentAlpha]:
@@ -17,9 +22,9 @@ def init() -> tuple[PrimeHub, ArtemisBase, AttachmentAlpha]:
 
 
 class SurfaceBrushing:
-    start = dict(x=350, y=450)
-    forward_point = dict(x=350, y=800)
-    end = dict(x=350, y=600)
+    start = WEST_START
+    forward_point = dict(x=WEST_START["x"], y=800)
+    end = dict(x=WEST_START["x"], y=600)
 
 
     def run(
@@ -27,23 +32,24 @@ class SurfaceBrushing:
         robot: ArtemisBase,
         attachment: AttachmentAlpha,
     ) -> None:
-        robot.drive_to(**self.start)
+        # Robot should be in starting position.
+        assert robot.x == WEST_START["x"]
+        assert robot.y == WEST_START["y"]
         robot.drive_to(**self.forward_point)
         robot.drive_to(**self.end, gear=Gear.REV)
 
 
 class MapReveal:
-    start = dict(x=350, y=800)
-    soil_location = dict(x=497, y=793)
-    soil_heading = -42
+    start = dict(x=498, y=796)
+    soil_heading = -43
     left_arm_speed = 200
     right_arm_speed = 200
     left_arm_positions = [100, 5]
-    right_arm_positions = [60, 95, 5]
+    right_arm_positions = [55, 95, 5]
     slow_speed = 150
     slow_acceleration = 200
-    step_sizes = [95, 45]
-    end = dict(x=503, y=787)
+    step_sizes = [95, 30]
+    end = dict(x=507, y=787)
 
     def run(
         self,
@@ -85,19 +91,16 @@ class MapReveal:
             speed=self.left_arm_speed,
             position=self.left_arm_positions[1],
         )
-        robot.drive_to(**self.end)
+        robot.drive_to(**self.end, gear=Gear.REV)
 
 
 class Mineshaft:
-    # This used to be 550, 900. Is there a reason it was different
-    # from lift_position?
-    start = dict(x=550, y=905)
-    lift_location = dict(x=620, y=905)
+    start = dict(x=550, y=915)
+    lift_location = dict(x=620, y=915)
     arm_speed = 200
     down_position = 75
     up_position = 0
-    wait_time = 1000
-    end = dict(x=620, y=905)
+    wait_time = 800
 
     def run(
         self,
@@ -119,20 +122,18 @@ class Mineshaft:
             speed=self.arm_speed,
             position=self.down_position,
         )
-        robot.drive_to(**self.end)
 
 
 class Statue:
-    start = dict(x=757, y=788)
-    lift_location = dict(x=782, y=742)
-    lift_heading = 153
-    backup_distance = 100
-    wait_times = [100, 200]
-    slow_arm_speed = 200
-    fast_arm_speed = 1000
-    left_arm_positions = [100, 0]
-    right_arm_positions = [60, 5]
-    end = dict(x=450, y=250)
+    start = dict(x=759, y=824)
+    lift_heading = 152
+    forward_distance = 70
+    wait_time = 200
+    arm_speed = 200
+    left_arm_positions = [100, 40, 20]
+    right_arm_positions = [20, 60]
+    twist_heading = 135
+    backward_distance = 200
 
     def run(
         self,
@@ -140,28 +141,44 @@ class Statue:
         attachment: AttachmentAlpha,
     ) -> None:
         robot.drive_to(**self.start)
-        attachment.left_arm_move(
-            speed=self.slow_arm_speed,
-            position=self.left_arm_positions[0],
-        )
-        robot.drive_to(**self.lift_location)
         robot.turn_to(self.lift_heading)
         attachment.left_arm_move(
-            speed=self.fast_arm_speed,
+            speed=self.arm_speed,
+            position=self.left_arm_positions[0],
+        )
+        robot.straight(self.forward_distance)
+        attachment.left_arm_move(
+            speed=self.arm_speed,
             position=self.left_arm_positions[1],
         )
-        wait(self.wait_times[0])
+        wait(self.wait_time)
+        robot.turn_to(self.twist_heading)
+        wait(self.wait_time)
+        attachment.left_arm_move(
+            speed=self.arm_speed,
+            position=self.left_arm_positions[2],
+        )
+        wait(self.wait_time)
         attachment.right_arm_move(
-            speed=self.slow_arm_speed,
+            speed=self.arm_speed,
             position=self.right_arm_positions[0],
         )
-        wait(self.wait_times[1])
-        robot.straight(-self.backup_distance)
-        attachment.right_arm_move(
-            speed=self.fast_arm_speed,
-            position=self.right_arm_positions[1],
-        )
-        robot.drive_to(**self.end)
+        wait(self.wait_time)
+        robot.straight(-self.backward_distance)
+
+class GoHome:
+    positions = [
+        dict(x=380, y=220),
+    ]
+
+    def run(
+        self,
+        robot: ArtemisBase,
+        attachment: AttachmentAlpha,
+    ) -> None:
+        for position in self.positions:
+            robot.drive_to(**position)
+
 
 if __name__ == "__main__":
     hub, robot, attachment = init()
@@ -169,3 +186,4 @@ if __name__ == "__main__":
     MapReveal().run(robot, attachment)
     Mineshaft().run(robot, attachment)
     Statue().run(robot, attachment)
+    GoHome().run(robot, attachment)

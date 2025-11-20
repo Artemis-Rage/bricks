@@ -10,7 +10,10 @@ class ToleranceConfig:
         self.position = position
 
     def __repr__(self):
-        return f"ToleranceConfig(speed={self.speed}, position={self.position})"
+        return (
+            f"ToleranceConfig(speed={self.speed}, " +
+            f"position={self.position})"
+        )
 
 
 class ControlConfig:
@@ -30,11 +33,9 @@ class ControlConfig:
 
     def __repr__(self):
         return (
-            "ControlConfig("
-            f"kp={self.kp}, ki={self.ki}, kd={self.kd}, "
-            f"heading_tolerance={self.heading_tolerance}, "
-            f"distance_tolerance={self.distance_tolerance}"
-            ")"
+            f"ControlConfig(kp={self.kp}, ki={self.ki}, kd={self.kd}, " +
+            f"heading_tolerance={self.heading_tolerance}, " +
+            f"distance_tolerance={self.distance_tolerance})"
         )
 
 
@@ -44,7 +45,7 @@ class MotionConfig:
         straight_speed: float,
         straight_acceleration: float,
         turn_rate: float,
-        turn_acceleration: float,
+        turn_acceleration,  # float or tuple[float, float]
     ):
         self.straight_speed = straight_speed
         self.straight_acceleration = straight_acceleration
@@ -53,12 +54,10 @@ class MotionConfig:
 
     def __repr__(self):
         return (
-            "MotionConfig("
-            f"straight_speed={self.straight_speed}, "
-            f"straight_acceleration={self.straight_acceleration}, "
-            f"turn_rate={self.turn_rate}, "
-            f"turn_acceleration={self.turn_acceleration}"
-            ")"
+            f"MotionConfig(straight_speed={self.straight_speed}, " +
+            f"straight_acceleration={self.straight_acceleration}, " +
+            f"turn_rate={self.turn_rate}, " +
+            f"turn_acceleration={self.turn_acceleration})"
         )
 
 class GeometryConfig:
@@ -72,10 +71,8 @@ class GeometryConfig:
 
     def __repr__(self):
         return (
-            "GeometryConfig("
-            f"wheel_diameter={self.wheel_diameter}, "
-            f"axle_track={self.axle_track}"
-            ")"
+            f"GeometryConfig(wheel_diameter={self.wheel_diameter}, " +
+            f"axle_track={self.axle_track})"
         )
 
 class ToleranceConfig:
@@ -89,9 +86,8 @@ class ToleranceConfig:
 
     def __repr__(self):
         return (
-            "ToleranceConfig("
-            f"speed={self.speed}, position={self.position}"
-            ")"
+            f"ToleranceConfig(speed={self.speed}, " +
+            f"position={self.position})"
         )
 
 
@@ -119,7 +115,7 @@ class ArtemisConfig:
                 straight_speed=350,
                 straight_acceleration=800,
                 turn_rate=100,
-                turn_acceleration=250,
+                turn_acceleration=(750, 200)
             ),
             straight_control_config=ControlConfig(
                 kp=18_500,
@@ -127,7 +123,7 @@ class ArtemisConfig:
                 kd=100,
                 heading_tolerance=ToleranceConfig(
                     speed=38,
-                    position=1,
+                    position=5,
                 ),
                 distance_tolerance=ToleranceConfig(
                     speed=27,
@@ -135,12 +131,12 @@ class ArtemisConfig:
                 ),
             ),
             turn_control_config=ControlConfig(
-                kp=7550,
-                ki=7800,
-                kd=760,
+                kp=12_000,
+                ki=21_000,
+                kd=3000,
                 heading_tolerance=ToleranceConfig(
                     speed=38,
-                    position=2,
+                    position=5,
                 ),
                 distance_tolerance=ToleranceConfig(
                     speed=27,
@@ -151,10 +147,8 @@ class ArtemisConfig:
 
     def __repr__(self):
         return (
-            "ArtemisConfig("
-            f"geometry_config={self.geometry_config}, "
-            f"motion_config={self.motion_config}, "
-            f"straight_control_config={self.straight_control_config}, "
-            f"turn_control_config={self.turn_control_config}"
-            ")"
+            f"ArtemisConfig(geometry_config={self.geometry_config}, " +
+            f"motion_config={self.motion_config}, " +
+            f"straight_control_config={self.straight_control_config}, " +
+            f"turn_control_config={self.turn_control_config})"
         )

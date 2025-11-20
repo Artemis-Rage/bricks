@@ -1,99 +1,35 @@
 """ArtemisBase: A DriveBase that tracks its position on the field."""
 
-from pybricks.parameters import Stop
-from pybricks.pupdevices import ColorSensor, Motor
-from pybricks.robotics import DriveBase
 from pybricks.hubs import PrimeHub
-from pybricks.parameters import Axis, Direction, Port
+from pybricks.parameters import Stop
+from pybricks.robotics import DriveBase
 
-import artemis_config
 import geometry
+
+hub = PrimeHub()
+
+hub.imu.reset_heading(0)
 
 
 class Gear:
-    FWD = 'FWD'
-    REV = 'REV'
-
-
-def get_hub():
-    return PrimeHub(top_side=Axis.Z, front_side=Axis.Y)
+    FWD = 1
+    REV = -1
 
 
 class ArtemisBase(DriveBase):
     """ArtemisBase a version of DriveBase that tracks its position on the field.
-
+    
     Because ArtemisBase tracks its position, it can drive to specific (x, y)
     coordinates on the field.
     """
 
     def __init__(
         self,
-        left_drive: Motor,
-        right_drive: Motor,
-        left_attachment: Motor,
-        right_attachment: Motor,
-        left_color: ColorSensor,
-        right_color: ColorSensor,
-        config: artemis_config.ArtemisConfig,
+        *args,
+        **kwargs,
     ):
-
-        super().__init__(
-            left_motor=left_drive,
-            right_motor=right_drive,
-            wheel_diameter=config.geometry_config.wheel_diameter,
-            axle_track=config.geometry_config.axle_track,
-        )
-        self.left_drive = left_drive
-        self.right_drive = right_drive
-        self.left_attachment = left_attachment
-        self.right_attachment = right_attachment
-        self.left_color = left_color
-        self.right_color = right_color
-        self.geometry = config.geometry_config
-        self.motion = config.motion_config
-        self.straight_control = config.straight_control_config
-        self.turn_control = config.turn_control_config
+        super().__init__(*args, **kwargs)
         self.reset_position()
-
-    def _config_global(self):
-        self.settings(
-            straight_speed=self.motion.straight_speed,
-            straight_acceleration=self.motion.straight_acceleration,
-            turn_rate=self.motion.turn_rate,
-            turn_acceleration=self.motion.turn_acceleration,
-        )
-
-    def _configure_straight_control(self):
-        self._config_global()
-        self.heading_control.pid(
-            kp=self.straight_control.kp,
-            ki=self.straight_control.ki,
-            kd=self.straight_control.kd,
-        )
-        self.heading_control.target_tolerances(
-            speed=self.straight_control.heading_tolerance.speed,
-            position=self.straight_control.heading_tolerance.position,
-        )
-        self.distance_control.target_tolerances(
-            speed=self.straight_control.distance_tolerance.speed,
-            position=self.straight_control.distance_tolerance.position,
-        )
-
-    def _configure_turn_control(self):
-        self._config_global()
-        self.heading_control.pid(
-            kp=self.turn_control.kp,
-            ki=self.turn_control.ki,
-            kd=self.turn_control.kd,
-        )
-        self.heading_control.target_tolerances(
-            speed=self.turn_control.heading_tolerance.speed,
-            position=self.turn_control.heading_tolerance.position,
-        )
-        self.distance_control.target_tolerances(
-            speed=self.turn_control.distance_tolerance.speed,
-            position=self.turn_control.distance_tolerance.position,
-        )
 
     def reset_position(
         self,
@@ -103,65 +39,36 @@ class ArtemisBase(DriveBase):
         self.x = x
         self.y = y
 
-
-    def straight(
-        self,
-        distance: float,
-        then: Stop = Stop.HOLD,
-        wait: bool = True,
-        speed: float | None = None,
-        acceleration: float | None = None,
-    ):
-        """Drives straight for a given distance.
-        
-        Args:
-            distance: The distance to drive in millimeters.
-            then: The action to take after driving.
-            wait: Whether to wait for the drive to complete.
-            speed: Override the global speed setting.
-            acceleration: Override the global acceleration setting.
-        """
-        self._configure_straight_control()
-        if speed is not None:
-            self.settings(straight_speed=speed)
-        if acceleration is not None:
-            self.settings(straight_acceleration=acceleration)
-        super().straight(
-            distance=distance,
-            then=then,
-            wait=wait,
-        )
-        new_x, new_y = geometry.compute_new_position(
-            self.x,
-            self.y,
-            self.angle(),
-            distance,
-        )
-        self.reset_position(new_x, new_y)
-
     def turn_to(
         self,
         heading: float,
         then: Stop = Stop.HOLD,
         wait: bool = True,
-        speed: float | None = None,
-        acceleration: float | None = None,
     ):
-        """Turns the robot to face in the direction `heading`.
+        """Turns the robot to face in the direction `heading`."""
+        straight_kp, straight_ki, straight_kd = 18500, 410, 100
+        straight_heading_speed, straight_heading_position = 38, 5
+        straight_distance_speed, straight_distance_position = 27, 5
 
-        Args:
-            heading: The heading to turn to in degrees.
-            then: The action to take after turning.
-            wait: Whether to wait for the turn to complete.
-            speed: Override the global turn speed setting.
-            acceleration: Override the global turn acceleration setting.
-        """
-        self._configure_turn_control()
+        turn_kp, turn_ki, turn_kd = 12000, 21000, 3000
+        turn_heading_speed, turn_heading_position = 38, 5
+        turn_distance_speed, turn_distance_position = 27, 5
+
+        ''' set PID values for turn '''
+        self.heading_control.pid(kp=turn_kp, ki=turn_ki, kd=turn_kd) # set straight PID
+        self.heading_control.target_tolerances(speed=turn_heading_speed, position=turn_heading_position) # set straight heading tolerance
+        self.distance_control.target_tolerances(speed=turn_distance_speed, position=turn_distance_position) # set straight distance tolerance
+
         current_heading = self.angle()
         turn = (heading - current_heading) % 360
         if turn > 180:
             turn = turn - 360
         self.turn(turn, then, wait)
+
+        '''set PID values for straight'''
+        self.heading_control.pid(kp=straight_kp, ki=straight_ki, kd=straight_kd) # set straight PID
+        self.heading_control.target_tolerances(speed=straight_heading_speed, position=straight_heading_position) # set straight heading tolerance
+        self.distance_control.target_tolerances(speed=straight_distance_speed, position=straight_distance_position) # set straight distance tolerance
 
     def drive_to(
         self,
@@ -172,32 +79,19 @@ class ArtemisBase(DriveBase):
         gear: Gear = Gear.FWD,
     ):
         """Drives from the current location to (x, y)."""
-        heading, distance = geometry.compute_trajectory(
-            self.x, self.y, x, y,
-        )
+        straight_kp, straight_ki, straight_kd = 18500, 410, 100
+        straight_heading_speed, straight_heading_position = 38, 5
+        straight_distance_speed, straight_distance_position = 27, 5
+
+        '''set PID values for straight'''
+        self.heading_control.pid(kp=straight_kp, ki=straight_ki, kd=straight_kd) # set straight PID
+        self.heading_control.target_tolerances(speed=straight_heading_speed, position=straight_heading_position) # set straight heading tolerance
+        self.distance_control.target_tolerances(speed=straight_distance_speed, position=straight_distance_position) # set straight distance tolerance
+        heading, distance = geometry.compute_trajectory(self.x, self.y, x, y)
         if gear == Gear.REV:
             heading += 180
-            distance = -distance
+            distance=-distance
+
         self.turn_to(heading)
         self.straight(distance, then=then, wait=wait)
-        # Assume we've arrived at the destination.
         self.reset_position(x, y)
-
-    @classmethod
-    def default(cls) -> tuple[PrimeHub, "ArtemisBase"]:
-        hub = get_hub()
-        left_drive = Motor(Port.A, Direction.COUNTERCLOCKWISE)
-        right_drive = Motor(Port.E, Direction.CLOCKWISE)
-        left_attachment = Motor(Port.D, Direction.CLOCKWISE)
-        right_attachment = Motor(Port.C, Direction.CLOCKWISE)
-        left_color = ColorSensor(Port.B)
-        right_color = ColorSensor(Port.F)
-        return hub, cls(
-            left_drive=left_drive,
-            right_drive=right_drive,
-            left_attachment=left_attachment,
-            right_attachment=right_attachment,
-            left_color=left_color,
-            right_color=right_color,
-            config=artemis_config.ArtemisConfig.default(),
-        )
